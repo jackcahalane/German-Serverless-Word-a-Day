@@ -3,59 +3,70 @@ import os
 import json
 import random
 import csv
-from datetime import datetime
+import datetime
 from botocore.exceptions import ClientError
 
 def lambda_handler(event, context):
+    #Get the daily word and translation from function
+    daily_row = daily_word_gen() 
+    daily_word = daily_row[0]
+    daily_translation = daily_row[1]
+  
+    # The email body for recipients with non-HTML email clients.
+    BODY_TEXT = f"Das deutsche Tageswort für heute is {daily_word}."  
+    BODY_HTML = create_html_body(daily_word, daily_translation)
+
+    send_it_out = send_email(BODY_TEXT,BODY_HTML)
     
+
+def daily_word_gen():
     #Define the variables to be passed to the function
-    german_dict = 'german_vocab.csv'
-    input_bucket = 'serverless-german-word-a-day'
+    german_dict = os.environ['german_dict']
+    input_bucket = os.environ['input_bucket']
     s3_resource = boto3.resource('s3')
     s3_object = s3_resource.Object(input_bucket, german_dict)
 
     #Read the data from the txt file and parse into lines
     data = s3_object.get()['Body'].read().decode('utf-8').splitlines()
-    
+    lines = csv.reader(data)
+    rows = list(lines)
+
     #Get the number of lines in the file and return a random line
     daily_number = random.randrange(0,len(data))
-    daily_word = data[daily_number]
+    daily_row = rows[daily_number]
+    return daily_row
 
-    # Replace sender@example.com with your "From" address.
-    # This address must be verified with Amazon SES.
-    SENDER = "German Word A Day <cahalnej@tcd.ie>"
-
-    # Replace recipient@example.com with a "To" address. If your account 
-    # is still in the sandbox, this address must be verified.
-    RECIPIENT = "jackcahalane@gmail.com"
-
-    # Specify a configuration set. If you do not want to use a configuration
-    # set, comment the following variable, and the 
-    # ConfigurationSetName=CONFIGURATION_SET argument below.
-    #CONFIGURATION_SET = "ConfigSet"
-
-    # If necessary, replace us-west-2 with the AWS Region you're using for Amazon SES.
-    AWS_REGION = "eu-west-1"
-
-    # The subject line for the email.
-    SUBJECT = "Amazon SES Test (SDK for Python)"
-    
-    # The email body for recipients with non-HTML email clients.
-    
-    BODY_TEXT = f"The German Word of the Day is {daily_word}."       
-    
+def create_html_body(daily_word, daily_translation):       
     # The HTML body of the email.
     BODY_HTML = f"""<html>
     <head></head>
     <body>
-      <h1>{daily_word}</h1>
-      <p>This email was sent by
-        <a href='https://www.linkedin.com/in/jack-cahalane-31621899/'>Jack Cahalane</a> using his
-          atrocious AWS skills</a>.</p>
+      <h1>Das deutsche Tageswort ist {daily_word}, was {daily_translation} bedeutet</h1>
+      <p>Diese E-Mail wurde von
+        <a href='https://www.linkedin.com/in/jack-cahalane-31621899/'>Jack Cahalane</a> mit
+           seinen beschissenen AWS-Kenntnissen verschickt</a>.</p>
     </body>
     </html>
-                """            
+                """   
+    return BODY_HTML
 
+def send_email(BODY_TEXT, BODY_HTML):
+    #Get the date
+    now = datetime.datetime.now()
+    year = lambda x: x.year
+    month = lambda x: x.month
+    day = lambda x: x.day
+    t = lambda x: x.time()
+
+    # Set up the SES Configuration
+    sender_email = os.environ['sender_email']
+    SENDER = "German Word A Day <" + sender_email + ">"
+    print(SENDER)
+    RECIPIENT = "jackcahalane@gmail.com"
+    AWS_REGION = os.environ['AWS_REGION']
+
+    # The subject line for the email.
+    SUBJECT = "Das deutsche Tageswort für {}/{}/{}".format(day(now),month(now),year(now))
     # The character encoding for the email.
     CHARSET = "UTF-8"
 
@@ -88,9 +99,6 @@ def lambda_handler(event, context):
                 },
             },
             Source=SENDER,
-            # If you are not using a configuration set, comment or delete the
-            # following line
-            #ConfigurationSetName=CONFIGURATION_SET,
         )
     # Display an error if something goes wrong.	
     except ClientError as e:
@@ -98,5 +106,3 @@ def lambda_handler(event, context):
     else:
         print("Email sent! Message ID:"),
         print(response['MessageId'])
-        
-    return daily_word
