@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Template for creation of IAM Role for Lambda Function used for German Word a Day
+
+Parameters:
+  Input_File:
+    Type: String
+    Description: File name that will be stored as an environment variable
+  Input_Bucket:
+    Type: String
+    Description: Bucket name that will be stored as an environment variable
+    Default: serverless-german-word-a-day
+  Sender_Email:
+    Type: String
+    Description: Email address that will be stored as an environment variable 
+
+Resources:
+  LambdaFunctionRoleCreation:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        Input_File : !Ref Input_File
+        Input_Bucket: !Ref Input_Bucket
+        Sender_Email: !Ref Sender_Email
+      TemplateURL: s3://serverless-german-word-a-day/CloudFormation/Provision-Lambda-Function-IAM.yml
+      TimeoutInMinutes: 2
+  LambdaFunctionProvision:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters: 
+        Input_File : !Ref Input_File
+        Input_Bucket: !Ref Input_Bucket
+        Sender_Email: !Ref Sender_Email
+      TemplateURL: s3://serverless-german-word-a-day/CloudFormation/Provision-Lambda-Function.yml
+      TimeoutInMinutes: 2

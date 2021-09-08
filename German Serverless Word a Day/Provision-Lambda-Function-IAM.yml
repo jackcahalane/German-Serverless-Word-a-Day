@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Template for creation of Lambda Function used for German Word a Day
+
+Parameters:
+  Input_File:
+    Type: String
+    Description: File name that will be stored as an environment variable
+  Input_Bucket:
+    Type: String
+    Description: Bucket name that will be stored as an environment variable
+  Sender_Email:
+    Type: String
+    Description: Email address that will be stored as an environment variable 
+
+Resources:
+  IAMRoleCreation:
+    Type: AWS::IAM::Role
+    Properties: 
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+                - cloudformation.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Description: IAM Role for Lambda function used by German Word a Day
+      ManagedPolicyArns:
+        - !Sub arn:aws:iam::${AccountId}:policy/German-Word-A-Day-SES-Policy
+        - !Sub arn:aws:iam::${AccountId}:policy/service-role/AWSLambdaBasicExecutionRole-80ac33fe-6470-4031-b919-779e7796977b
+        - !Sub arn:aws:iam::${AccountId}:policy/service-role/AWSLambdaSNSTopicDestinationExecutionRole-3361c78d-0a45-4ca8-ae45-b7c24215909a
+        - !Sub arn:aws:iam::${AccountId}:policy/lambda_german_word_a_day_access
+      RoleName: !Sub 'GermanWordADay-${AWSRegion}-${AccountId}-Lambda'
+      Tags: 
+        - Key: "Project"
+        Value: "German Word a Day"
