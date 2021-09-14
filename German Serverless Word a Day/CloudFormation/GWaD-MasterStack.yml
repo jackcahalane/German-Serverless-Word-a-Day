@@ -2,6 +2,9 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: Template for creation of IAM Role for Lambda Function used for German Word a Day
 
 Parameters:
+  Frequency:
+    Type: String
+    Description: Determines how often the function runs
   Input_File:
     Type: String
     Description: File name that will be stored as an environment variable
@@ -32,3 +35,12 @@ Resources:
         Sender_Email: !Ref Sender_Email
       TemplateURL: s3://serverless-german-word-a-day/CloudFormation/Provision-Lambda-Function.yml
       TimeoutInMinutes: 2
+  S3BucketCreation:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+  EventBridgeRuleCreation:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+      TemplateURL:
+      TimeoutinMinutes: 2
