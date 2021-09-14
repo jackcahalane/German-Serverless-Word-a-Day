@@ -1,0 +1,15 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Template for creation of Lambda Function used for German Word a Day
+
+Parameters:
+Resources:
+  Type: AWS::Events::Rule
+  Properties:
+    Description: EventBridge Rule to trigger the German Word a Day Lambda Function
+    EventBusName: 
+      - !Sub arn:aws:events:${AWSRegion}:${AccountId}:event-bus/default
+    Name: German_Word_A_Day_EventBridge_Rule
+    ScheduleExpression: "cron(0 8 * * ? *)"
+    State: ENABLED
+    Targets: 
+      - !Sub arn:aws:lambda:${AWSRegion}:${AccountId}:function:German_Word_a_Day

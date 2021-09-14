@@ -2,9 +2,6 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: Template for creation of IAM Role for Lambda Function used for German Word a Day
 
 Parameters:
-  Frequency:
-    Type: String
-    Description: Determines how often the function runs
   Input_File:
     Type: String
     Description: File name that will be stored as an environment variable
