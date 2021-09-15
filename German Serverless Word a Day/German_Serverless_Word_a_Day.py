@@ -62,7 +62,7 @@ def send_email(BODY_TEXT, BODY_HTML):
     sender_email = os.environ['sender_email']
     SENDER = "German Word A Day <" + sender_email + ">"
     print(SENDER)
-    RECIPIENT = "jackcahalane@gmail.com"
+    RECIPIENT = os.environ['recipient_email']
     AWS_REGION = os.environ['AWS_REGION']
 
     # The subject line for the email.
