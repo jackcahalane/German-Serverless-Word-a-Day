@@ -1,23 +1,31 @@
 import boto3
-import os
-import json
 import random
-import csv
+import os
 import datetime
+import csv
 from botocore.exceptions import ClientError
 
+now = datetime.datetime.now()
+year = lambda x: x.year
+month = lambda x: x.month
+day = lambda x: x.day
+t = lambda x: x.time()
+
 def lambda_handler(event, context):
+
     #Get the daily word and translation from function
     daily_row = daily_word_gen() 
     daily_word = daily_row[0]
     daily_translation = daily_row[1]
-  
+    
+    #Add to the DynamoDB table to ensure it's not used again
+    add_to_record = put_word(daily_word)
+    
     # The email body for recipients with non-HTML email clients.
     BODY_TEXT = f"Das deutsche Tageswort für heute is {daily_word}."  
     BODY_HTML = create_html_body(daily_word, daily_translation)
 
     send_it_out = send_email(BODY_TEXT,BODY_HTML)
-    
 
 def daily_word_gen():
     #Define the variables to be passed to the function
@@ -31,10 +39,46 @@ def daily_word_gen():
     lines = csv.reader(data)
     rows = list(lines)
 
-    #Get the number of lines in the file and return a random line
-    daily_number = random.randrange(0,len(data))
-    daily_row = rows[daily_number]
+    #Set up while loop for ensuring same word not used again
+    i = 0
+    while i < 1:
+        #Get the number of lines in the file and return a random line
+        daily_number = random.randrange(0,len(data))
+        daily_row = rows[daily_number]
+
+        #Check if the word been featured beforehand
+        daily_word = daily_row[0]
+        check_word = word_check(daily_word)
+        i = check_word
+
     return daily_row
+
+def word_check(daily_word):
+    #DynamoDB table to be used
+    table = boto3.resource('dynamodb', region_name=os.environ['AWS_REGION']).Table(os.environ['table_name'])
+    try:
+        response = table.get_item(Key={'Word': {'S': daily_word}})
+    except ClientError as e:
+        return 1
+    else:
+        return 0
+
+    
+def put_word(daily_word):
+    #Get the Date
+    now = datetime.datetime.now()
+    year = lambda x: x.year
+    month = lambda x: x.month
+    day = lambda x: x.day
+    t = lambda x: x.time()
+    table = boto3.resource('dynamodb', region_name=os.environ['AWS_REGION']).Table(os.environ['table_name'])
+    response = table.put_item(
+            Item={
+            'Word':  daily_word,
+            'Date':  "{}/{}/{}".format(day(now),month(now),year(now))
+            }
+        )
+    return response
 
 def create_html_body(daily_word, daily_translation):       
     # The HTML body of the email.
@@ -51,17 +95,10 @@ def create_html_body(daily_word, daily_translation):
     return BODY_HTML
 
 def send_email(BODY_TEXT, BODY_HTML):
-    #Get the date
-    now = datetime.datetime.now()
-    year = lambda x: x.year
-    month = lambda x: x.month
-    day = lambda x: x.day
-    t = lambda x: x.time()
 
     # Set up the SES Configuration
     sender_email = os.environ['sender_email']
     SENDER = "German Word A Day <" + sender_email + ">"
-    print(SENDER)
     RECIPIENT = os.environ['recipient_email']
     AWS_REGION = os.environ['AWS_REGION']
 
