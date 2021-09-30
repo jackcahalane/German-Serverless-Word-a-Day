@@ -56,21 +56,18 @@ def daily_word_gen():
 def word_check(daily_word):
     #DynamoDB table to be used
     table = boto3.resource('dynamodb', region_name=os.environ['AWS_REGION']).Table(os.environ['table_name'])
+
+    #Check if the word is already in the table
     try:
         response = table.get_item(Key={'Word': {'S': daily_word}})
     except ClientError as e:
         return 1
     else:
         return 0
-
     
 def put_word(daily_word):
-    #Get the Date
-    now = datetime.datetime.now()
-    year = lambda x: x.year
-    month = lambda x: x.month
-    day = lambda x: x.day
-    t = lambda x: x.time()
+
+    #Add the word to the DynamoDB table
     table = boto3.resource('dynamodb', region_name=os.environ['AWS_REGION']).Table(os.environ['table_name'])
     response = table.put_item(
             Item={
@@ -80,7 +77,7 @@ def put_word(daily_word):
         )
     return response
 
-def create_html_body(daily_word, daily_translation):       
+def create_html_body(daily_word, daily_translation):
     # The HTML body of the email.
     BODY_HTML = f"""<html>
     <head></head>
