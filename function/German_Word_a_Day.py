@@ -13,40 +13,41 @@ t = lambda x: x.time()
 
 def lambda_handler(event, context):
 
-    #Get the daily word and translation from function
+    # Get the daily word and translation from function
     daily_row = daily_word_gen() 
     daily_word = daily_row[0]
     daily_translation = daily_row[1]
     
-    #Add to the DynamoDB table to ensure it's not used again
+    # Add to the DynamoDB table to ensure it's not used again
     add_to_record = put_word(daily_word)
     
     # The email body for recipients with non-HTML email clients.
     BODY_TEXT = f"Das deutsche Tageswort für heute is {daily_word}."  
     BODY_HTML = create_html_body(daily_word, daily_translation)
 
+    # Send the email out with SES
     send_it_out = send_email(BODY_TEXT,BODY_HTML)
 
 def daily_word_gen():
-    #Define the variables to be passed to the function
+    # Define the variables to be passed to the function
     german_dict = os.environ['german_dict']
     input_bucket = os.environ['input_bucket']
     s3_resource = boto3.resource('s3')
     s3_object = s3_resource.Object(input_bucket, german_dict)
 
-    #Read the data from the txt file and parse into lines
+    # Read the data from the txt file and parse into lines
     data = s3_object.get()['Body'].read().decode('utf-8').splitlines()
     lines = csv.reader(data)
     rows = list(lines)
 
-    #Set up while loop for ensuring same word not used again
+    # Set up while loop for ensuring same word not used again
     i = 0
     while i < 1:
-        #Get the number of lines in the file and return a random line
+        # Get the number of lines in the file and return a random line
         daily_number = random.randrange(0,len(data))
         daily_row = rows[daily_number]
 
-        #Check if the word been featured beforehand
+        # Check if the word been featured beforehand
         daily_word = daily_row[0]
         check_word = word_check(daily_word)
         i = check_word
@@ -54,10 +55,10 @@ def daily_word_gen():
     return daily_row
 
 def word_check(daily_word):
-    #DynamoDB table to be used
+    # DynamoDB table to be used
     table = boto3.resource('dynamodb', region_name=os.environ['AWS_REGION']).Table(os.environ['table_name'])
 
-    #Check if the word is already in the table
+    # Check if the word is already in the table
     try:
         response = table.get_item(Key={'Word': {'S': daily_word}})
     except ClientError as e:
@@ -67,7 +68,7 @@ def word_check(daily_word):
     
 def put_word(daily_word):
 
-    #Add the word to the DynamoDB table
+    # Add the word to the DynamoDB table
     table = boto3.resource('dynamodb', region_name=os.environ['AWS_REGION']).Table(os.environ['table_name'])
     response = table.put_item(
             Item={
@@ -109,7 +110,7 @@ def send_email(BODY_TEXT, BODY_HTML):
 
     # Try to send the email.
     try:
-        #Provide the contents of the email.
+        # Provide the contents of the email.
         response = client.send_email(
             Destination={
                 'ToAddresses': [
