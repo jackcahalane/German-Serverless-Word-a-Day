@@ -29,18 +29,7 @@ aws s3 cp ${TARGET_LAMBDA_FUNCTION_CODE} s3://${S3_BUCKET}/${BRANCH}/
 
 cat >template.yaml <<EOM
 AWSTemplateFormatVersion: '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
-Parameters:
-  	German_Dictionary:
-      Type: String
-    Input_S3_Bucket:
-      Type: String
-    Recipient_Emails:
-      Type: String
-    Sender_Email:
-      Type: String
-    Table_Name:
-      Type: String  
+Transform: AWS::Serverless-2016-10-31 
 Resources:
   LambdaFunction:
     Type: AWS::Serverless::Function
@@ -61,5 +50,16 @@ Resources:
       DeploymentPreference:
         Enabled: True
         Type: ${LAMBDA_DEPLOYMENT_PREFERENCE}
+Parameters:
+  	German_Dictionary:
+      Type: String
+    Input_S3_Bucket:
+      Type: String
+    Recipient_Emails:
+      Type: String
+    Sender_Email:
+      Type: String
+    Table_Name:
+      Type: String 
 EOM
 cat template.yaml
