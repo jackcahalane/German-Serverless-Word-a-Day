@@ -30,6 +30,17 @@ aws s3 cp ${TARGET_LAMBDA_FUNCTION_CODE} s3://${S3_BUCKET}/${BRANCH}/
 cat >template.yaml <<EOM
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
+Parameters:
+  	German_Dictionary:
+      Type: String
+    Input_S3_Bucket:
+      Type: String
+    Recipient_Emails:
+      Type: String
+    Sender_Email:
+      Type: String
+    Table_Name:
+      Type: String  
 Resources:
   LambdaFunction:
     Type: AWS::Serverless::Function
@@ -37,6 +48,12 @@ Resources:
       FunctionName: ${LAMBDA_FUNCTION_NAME}-${BRANCH}
       Handler: ${LAMBDA_FUNCTION_NAME}.lambda_handler
       Runtime: python3.7
+      Environment:
+        german_dict: !Ref German_Dictionary
+        input_bucket: !Ref Input_S3_Bucket
+        recipient_email: !Ref Recipient_Emails
+        sender_email: !Ref Sender_Email
+        table_name: !Ref Table_Name
       CodeUri: s3://${S3_BUCKET}/${BRANCH}/${LAMBDA_FUNCTION_NAME}_v${TARGET_LAMBDA_FUNCTION_VERSION}.zip
       AutoPublishAlias: default
       Role: arn:aws:iam::285745372420:role/service-role/${LAMBDA_FUNCTION_ROLE}
