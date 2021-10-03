@@ -38,11 +38,11 @@ Resources:
       Handler: ${LAMBDA_FUNCTION_NAME}.lambda_handler
       Runtime: python3.7
       Environment:
-        german_dict: !Ref German_Dictionary
-        input_bucket: !Ref Input_S3_Bucket
-        recipient_email: !Ref Recipient_Emails
-        sender_email: !Ref Sender_Email
-        table_name: !Ref Table_Name
+        german_dict: !Ref GermanDictionary
+        input_bucket: !Ref InputS3Bucket
+        recipient_email: !Ref RecipientEmails
+        sender_email: !Ref SenderEmail
+        table_name: !Ref TableName
       CodeUri: s3://${S3_BUCKET}/${BRANCH}/${LAMBDA_FUNCTION_NAME}_v${TARGET_LAMBDA_FUNCTION_VERSION}.zip
       AutoPublishAlias: default
       Role: arn:aws:iam::285745372420:role/service-role/${LAMBDA_FUNCTION_ROLE}
@@ -51,15 +51,15 @@ Resources:
         Enabled: True
         Type: ${LAMBDA_DEPLOYMENT_PREFERENCE}
 Parameters:
-    German_Dictionary:
+    GermanDictionary:
       Type: String
-    Input_S3_Bucket:
+    InputS3Bucket:
       Type: String
-    Recipient_Emails:
+    RecipientEmails:
       Type: String
-    Sender_Email:
+    SenderEmail:
       Type: String
-    Table_Name:
+    TableName:
       Type: String 
 EOM
 cat template.yaml
