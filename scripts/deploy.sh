@@ -39,7 +39,7 @@ Resources:
       Runtime: python3.7
       CodeUri: s3://${S3_BUCKET}/${BRANCH}/${LAMBDA_FUNCTION_NAME}_v${TARGET_LAMBDA_FUNCTION_VERSION}.zip
       AutoPublishAlias: default
-      Role: 
+      Role: ${LAMBDA_FUNCTION_ROLE}
       Timeout: 30
       DeploymentPreference:
         Enabled: True
