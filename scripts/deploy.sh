@@ -51,7 +51,7 @@ Resources:
         Enabled: True
         Type: ${LAMBDA_DEPLOYMENT_PREFERENCE}
 Parameters:
-  	German_Dictionary:
+    German_Dictionary:
       Type: String
     Input_S3_Bucket:
       Type: String
