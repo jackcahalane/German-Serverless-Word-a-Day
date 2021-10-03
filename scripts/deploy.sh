@@ -2,6 +2,7 @@ echo "S3 Bucket: $S3_BUCKET"
 echo "Lambda Function Name: $LAMBDA_FUNCTION_NAME"
 echo "Lambda Deployment Preference: $LAMBDA_DEPLOYMENT_PREFERENCE"
 echo "GitHub Branch: $BRANCH"
+echo "Lambda Function Role: $LAMBDA_FUNCTION_ROLE"
 
 if [ "$BRANCH" == "master" ]; then
     BRANCH="prod"
@@ -34,10 +35,11 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: ${LAMBDA_FUNCTION_NAME}-${BRANCH}
-      Handler: lambda_function.lambda_handler
+      Handler: ${LAMBDA_FUNCTION_NAME}.lambda_handler
       Runtime: python3.7
       CodeUri: s3://${S3_BUCKET}/${BRANCH}/${LAMBDA_FUNCTION_NAME}_v${TARGET_LAMBDA_FUNCTION_VERSION}.zip
       AutoPublishAlias: default
+      Role: 
       Timeout: 30
       DeploymentPreference:
         Enabled: True
