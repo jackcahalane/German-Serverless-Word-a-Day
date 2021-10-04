@@ -38,11 +38,11 @@ Resources:
       Handler: ${LAMBDA_FUNCTION_NAME}.lambda_handler
       Runtime: python3.7
       Environment:
-        german_dict: !Ref GermanDictionary
-        input_bucket: !Ref InputS3Bucket
-        recipient_email: !Ref RecipientEmails
-        sender_email: !Ref SenderEmail
-        table_name: !Ref TableName
+        GermanDictionary: !Ref GermanDictionary
+        InputBucket: !Ref InputS3Bucket
+        RecipientEmail: !Ref RecipientEmails
+        SenderEmail: !Ref SenderEmail
+        TableName: !Ref TableName
       CodeUri: s3://${S3_BUCKET}/${BRANCH}/${LAMBDA_FUNCTION_NAME}_v${TARGET_LAMBDA_FUNCTION_VERSION}.zip
       AutoPublishAlias: default
       Role: arn:aws:iam::285745372420:role/service-role/${LAMBDA_FUNCTION_ROLE}
