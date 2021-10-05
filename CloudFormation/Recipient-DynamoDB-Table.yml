@@ -11,6 +11,3 @@ Resources:
       SSESpecification:
         SSEEnabled: false
       TableName: GWaD_Recipients
-      Tags:
-        - Key: "Application"
-          Value: "German Word a Day"
