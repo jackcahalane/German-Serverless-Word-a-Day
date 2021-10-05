@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Template for creation of DynamoDB table used for storing GWaD email recipients.
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  DynamoDBTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: Email
+        Type: String
+      SSESpecification:
+        SSEEnabled: false
+      TableName: GWaD_Recipients
+      Tags:
+        - Key: "Application"
+          Value: "German Word a Day"
